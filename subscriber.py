@@ -7,6 +7,7 @@ import paho.mqtt.client as paho
 import time
 import random
 import json
+from read_config import read_config
 random.seed()
 
 def on_message(mosq, obj, msg) :
@@ -14,10 +15,11 @@ def on_message(mosq, obj, msg) :
     print(json.loads(msg.payload))
 
 if __name__ == '__main__':
+    config = read_config('config')
     client = paho.Client()
 
     #client.tls_set('root.ca', certfile='c1.crt', keyfile='c1.key')
-    client.connect("localhost", 1883, 60)
+    client.connect(config['mqtt_host'], config['mqtt_port'], 60)
 
     #GUID = 'GUID-%d' %random.randint(1000,9999)
     GUID = 'GUID-1822'
