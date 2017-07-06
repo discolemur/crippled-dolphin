@@ -1,7 +1,7 @@
 #! /bin/bash
 
 
-mosquitto -p 1883 &
+#mosquitto -p 1883 &
 
 mongod --port=27017 --dbpath=/home/nick/code/mqtt/database/ &
 

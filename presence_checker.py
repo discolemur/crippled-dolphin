@@ -14,10 +14,7 @@ consider that client dead, and
 the is_dead flag in the database is set.
 '''
 
-lcycle = 10
-
-def check_presence(posts) :
-    global lcycle
+def check_presence(posts, lcycle) :
     start = int(time.time())
     # Find all living clients in the database
     for entry in posts.find({'is_dead':False}) :
@@ -32,22 +29,18 @@ def check_presence(posts) :
     if difference > 0 :
         time.sleep(difference)
 
-def main(args) :
-    dbclient = MongoClient('mongodb://%s:%d' %(args.moh, args.mop))
+def main(config) :
+    dbclient = MongoClient('mongodb://%s:%d' %(config['mongo_host'], config['mongo_port']))
     db = dbclient.test_database
     posts = db.posts
     while(True) :
-        check_presence(posts)
+        check_presence(posts, config['lcycle'])
 
 if __name__ == '__main__' :
     from pymongo import MongoClient
+    from read_config import read_config
     import time
     import random
     random.seed()
-    import optparse
-    parser = optparse.OptionParser()
-    parser.add_option('--mongo_host', type='string', default='localhost', dest='moh')
-    parser.add_option('--mongo_port', type=int, default=27017, dest='mop')
-    options, args = parser.parse_args()
-    main(options)
+    main(read_config())
 

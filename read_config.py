@@ -5,8 +5,9 @@ Reads config file
 
 returns dictionary of config variables -> values.
 '''
-def read_config(config_file) :
+def read_config() :
     import json
+    config_file = 'config'
     fh = open(config_file, 'r')
     data = ''
     for line in fh :

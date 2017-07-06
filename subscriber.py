@@ -15,7 +15,7 @@ def on_message(mosq, obj, msg) :
     print(json.loads(msg.payload))
 
 if __name__ == '__main__':
-    config = read_config('config')
+    config = read_config()
     client = paho.Client()
 
     #client.tls_set('root.ca', certfile='c1.crt', keyfile='c1.key')
