@@ -6,22 +6,28 @@ A small example subscriber
 import paho.mqtt.client as paho
 import time
 import random
+import json
 random.seed()
+
+def on_message(mosq, obj, msg) :
+    print('Received message:')
+    print(json.loads(msg.payload))
 
 if __name__ == '__main__':
     client = paho.Client()
 
     #client.tls_set('root.ca', certfile='c1.crt', keyfile='c1.key')
-    client.connect("localhost", 8080, 60)
+    client.connect("localhost", 1883, 60)
 
-#    client.subscribe("/GUID/sendping", 0)
+    #GUID = 'GUID-%d' %random.randint(1000,9999)
+    GUID = 'GUID-1822'
+    client.subscribe("/%s" %GUID, 0)
+    client.on_message = on_message
 
-    coolID = random.randint(1000000,9999999)
-    print('ID: %d' %coolID)
-
-    client.publish("/GUID/sendping", payload=coolID)
+    print('ID: %s' %GUID)
+    dump = json.dumps({'client':GUID})
     while client.loop() == 0:
+        client.publish("/sendping", payload=dump)
         time.sleep(3)
-        client.publish("/GUID/sendping", payload=coolID)
         pass
 

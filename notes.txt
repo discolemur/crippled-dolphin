@@ -1,0 +1,4 @@
+Here is where you will find working examples of how to use the library, along with a makefile that you will NEED to use.
+
+paho.mqtt.cpp/test/unit
+

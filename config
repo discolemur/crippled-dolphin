@@ -1,0 +1,6 @@
+{
+    "mqtt_host":"localhost",
+    "mqtt_port":1883,
+    "mongo_host":"localhost",
+    "mongo_port":27017
+}
