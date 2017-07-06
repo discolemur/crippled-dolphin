@@ -1,2 +1,4 @@
 database/**
 *.pyc
+**/unit_tests/**
+**.o
