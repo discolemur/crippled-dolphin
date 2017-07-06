@@ -37,7 +37,7 @@ def check_presence(posts, mqtt_client, lcycle) :
 
 def main(config) :
     dbclient = MongoClient('mongodb://%s:%d' %(config['mongo_host'], config['mongo_port']))
-    db = dbclient.test_database
+    db = dbclient.ping_database
     posts = db.posts
     mqtt_client = paho.Client()
     mqtt_client.connect(config['mqtt_host'], config['mqtt_port'], 60)

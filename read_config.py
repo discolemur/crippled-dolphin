@@ -7,7 +7,7 @@ returns dictionary of config variables -> values.
 '''
 def read_config() :
     import json
-    config_file = '../config'
+    config_file = 'config'
     fh = open(config_file, 'r')
     data = ''
     for line in fh :

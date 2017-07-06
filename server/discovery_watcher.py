@@ -29,7 +29,7 @@ def on_message(mosq, obj, msg):
 def init_db(host, port) :
     global posts
     dbclient = MongoClient('mongodb://%s:%d' %(host, port))
-    db = dbclient.test_database
+    db = dbclient.ping_database
     posts = db.posts
 
 def watch_mqtt(host, port) :
