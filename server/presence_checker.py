@@ -16,7 +16,7 @@ the is_dead flag in the database is set.
 
 def request_ping(mqtt_client, GUID) :
     dump = json.dumps({'request_ping':True})
-    print('Sending message!')
+    print('Sending message to /%s' %GUID)
     mqtt_client.publish("/%s" %GUID, payload=dump)
 
 def check_presence(posts, mqtt_client, lcycle) :
