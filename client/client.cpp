@@ -16,7 +16,7 @@ int main()
     const string ipAddress = "10.42.0.1";
     const string GUID = "GUID-" + to_string(rand());
     // 3 is the cycle the server expects. We use 7 to simulate routine death and restart.
-    const int lcycle = 7;
+    const int lcycle = 10;
     printf("Client process started.\n");
     MqttClient * mqttHdl;
     mqttHdl = new MqttClient(GUID, lcycle, ipAddress, port);
