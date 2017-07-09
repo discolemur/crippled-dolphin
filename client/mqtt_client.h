@@ -33,6 +33,7 @@ private:
             {
                 cout << "Received message" << endl;
                 cout << "\tPayload: " << msg->to_string() << "\n" << endl;
+                // TODO if asked for ping, send another ping.
             }
             void on_failure(const mqtt::token& asyncActionToken) override
             {
@@ -76,7 +77,7 @@ public:
         cout << URI << endl;
         this->client = new mqtt::async_client( URI, GUID );
         this->cb = new callback(this->client, this->connOpts, "/" + this->GUID);
-        //this->client->set_callback(*this->cb);
+        this->client->set_callback(*this->cb);
     }
     ~MqttClient()
     {
