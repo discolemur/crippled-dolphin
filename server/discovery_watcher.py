@@ -24,7 +24,7 @@ def on_message(mosq, obj, msg):
         if entry is not None and entry['is_dead'] :
             print('%s has restarted.' %entry['client'])
         result = posts.update_one({'client':content['client']}, {"$set":{'time':int(time.time()),'is_dead':False}}, upsert=True)
-        print('Received message from %s' %content['client'])
+        #print('Received message from %s' %content['client'])
  
 def init_db(host, port) :
     global posts
