@@ -55,10 +55,10 @@ int main(int argc, char* argv[])
         display_help();
         return 0;
     }
+    srand(time(0));
     int port = stoi(get_arg(argc, argv, "-p", _DEFAULT_PORT));
     string host = get_arg(argc, argv, "-h", _DEFAULT_HOST);
     int lcycle = stoi(get_arg(argc, argv, "-l", _DEFAULT_LCYCLE));
-    srand(time(NULL));
     const string GUID = "GUID-" + to_string(rand());
     // 3 is the cycle length the server expects.
     // You may use 7 or higher to simulate routine death and restart.

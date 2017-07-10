@@ -11,6 +11,15 @@ using std::string;
 using std::cout;
 using std::endl;
 
+/*
+TODO :
+
+Randomize time delay offset on request.
+
+Send ping on request.
+*/
+
+
 class MqttClient
 {
 
