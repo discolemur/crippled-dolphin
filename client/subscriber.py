@@ -11,14 +11,20 @@ from read_config import read_config
 random.seed()
 
 GUID = None
+ping_msg = None
+
+def send_ping(client) :
+    global GUID
+    global ping_msg
+    if ping_msg is None :
+        ping_msg = json.dumps({'GUID':GUID})
+    client.publish("/sendping", payload=ping_msg)
 
 def on_message(client, userdata, msg) :
     content = json.loads(msg.payload)
-    if content['request_ping'] :
-        global GUID
-        dump = json.dumps({'client':GUID})
-        client.publish("/sendping", payload=dump)
-        
+    if content['request'] == 'ping' :
+        print('HI!')
+        send_ping(client)
 
 if __name__ == '__main__':
     config = read_config()
@@ -33,9 +39,8 @@ if __name__ == '__main__':
     client.subscribe("/%s" %GUID, 0)
 
     print('ID: %s' %GUID)
-    dump = json.dumps({'client':GUID})
     while client.loop() == 0:
-        client.publish("/sendping", payload=dump)
+        send_ping(client)
         time.sleep(config['lcycle'])
         pass
 

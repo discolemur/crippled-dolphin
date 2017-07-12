@@ -19,12 +19,12 @@ def on_message(mosq, obj, msg):
     content = json.loads(msg.payload)
     if not isinstance(content, dict) :
         return
-    if 'client' in content :
-        entry = posts.find_one({'client':content['client']})
+    if 'GUID' in content :
+        entry = posts.find_one({'client':content['GUID']})
         if entry is not None and entry['is_dead'] :
             print('%s has restarted.' %entry['client'])
-        result = posts.update_one({'client':content['client']}, {"$set":{'time':int(time.time()),'is_dead':False}}, upsert=True)
-        #print('Received message from %s' %content['client'])
+        result = posts.update_one({'client':content['GUID']}, {"$set":{'time':int(time.time()),'is_dead':False}}, upsert=True)
+        #print('Received message from %s' %content['GUID'])
  
 def init_db(host, port) :
     global posts

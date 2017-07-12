@@ -91,7 +91,7 @@ public:
         this->cb = new callback(this, this->connOpts, "/" + this->GUID);
         this->client->set_callback(*this->cb);
         const string ping_topic = "/sendping";
-        const string payload = "{ \"client\":\"" + this->GUID + "\" }";
+        const string payload = "{ \"GUID\":\"" + this->GUID + "\" }";
         this->ping_msg = mqtt::make_message(ping_topic, payload);
         this->ping_msg->set_qos(0);
     }

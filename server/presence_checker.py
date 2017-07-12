@@ -15,7 +15,7 @@ the is_dead flag in the database is set.
 '''
 
 def request_ping(mqtt_client, GUID) :
-    dump = json.dumps({'request_ping':True})
+    dump = json.dumps({'request':'ping'})
     print('Requesting ping on channel /%s' %GUID)
     mqtt_client.publish("/%s" %GUID, payload=dump)
 
@@ -49,8 +49,6 @@ if __name__ == '__main__' :
     from pymongo import MongoClient
     from read_config import read_config
     import time
-    import random
     import json
-    random.seed()
     main(read_config())
 

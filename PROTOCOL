@@ -1,0 +1,26 @@
+Protocol for communications between subscribers and server.
+
+    Communications are expected in json.
+    Communications may contain more than one option.
+
+
+
+FROM SERVER TO SUBSCRIBER :
+
+Three requests are currently supported or under development:
+    ping -- client should send a ping to the broker.
+    die -- client process should end.
+    randomize -- client should randomize the offset of its ping interval.
+{
+    "request":"ping",
+    "request":"die",
+    "request":"randomize"
+}
+
+FROM SUBSCRIBER TO SERVER :
+
+One message is supported, which simply tells the server that it is still alive:
+    GUID -- the subscriber's GUID
+{
+    "GUID":"[GUID]"
+}
