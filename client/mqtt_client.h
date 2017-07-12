@@ -16,6 +16,8 @@ using std::endl;
 using std::vector;
 using std::stringstream;
 
+int _MAX_ATTEMPTS = 8;
+
 class MqttClient
 {
 
@@ -125,15 +127,19 @@ public:
             const int port)
             : GUID(guid), lcycle(lcyc)
     {
+        const string ping_topic = "/sendping";
         this->connOpts = new mqtt::connect_options();
         this->connOpts->set_keep_alive_interval(20);
         this->connOpts->set_clean_session(true);
+        string LWT_PAYLOAD = "{\"statement\":\"dead\",\"GUID\":\"" + this->GUID + "\"}";
+        mqtt::message willmsg(ping_topic, LWT_PAYLOAD, 0, false);
+        mqtt::will_options will(willmsg);
+        connOpts->set_will(will);
         const string URI = "tcp://" + host + ":" + std::to_string(port);
         cout << URI << endl;
         this->client = new mqtt::async_client( URI, GUID );
         this->cb = new callback(this, this->connOpts, "/" + this->GUID);
         this->client->set_callback(*this->cb);
-        const string ping_topic = "/sendping";
         const string payload = "{ \"GUID\":\"" + this->GUID + "\" }";
         this->ping_msg = mqtt::make_message(ping_topic, payload);
         this->ping_msg->set_qos(0);
@@ -148,6 +154,7 @@ public:
     int get_lcycle() { return this->lcycle; }
     int send_ping()
     {
+        int num_attempts = 0;
         try
         {
             this->client->publish(this->ping_msg);
@@ -155,9 +162,15 @@ public:
         }
         catch (const mqtt::exception& exc)
         {
-            std::cerr << "Error: " << exc.what() << " ["
-                << exc.get_reason_code() << "]" << endl;
-            return 1;
+            if (num_attempts++ > _MAX_ATTEMPTS) {
+                std::cerr << "Error: " << exc.what() << " ["
+                    << exc.get_reason_code() << "]" << endl;
+                return 1;
+            }
+            else
+            {
+                this->send_ping();
+            }
         }
         return 0;
     }
@@ -168,6 +181,7 @@ public:
     }
     int run()
     {
+        int num_attempts = 0;
         try
         {
             // Connect
@@ -184,6 +198,11 @@ public:
         }
         catch (const mqtt::exception& exc)
         {
+            if (num_attempts++ < _MAX_ATTEMPTS)
+            {
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                run();
+            }
             std::cerr << "Error: " << exc.what() << " ["
                 << exc.get_reason_code() << "]" << endl;
             return 1;
