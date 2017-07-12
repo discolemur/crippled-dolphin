@@ -44,7 +44,19 @@ def randomize_pings(mqtt_client, posts, GUID) :
             GUID = entry.get('client')
             randomize_interval(mqtt_client, posts, GUID)
 
+def print_all_living_GUIDs(posts) :
+    available = []
+    for entry in posts.find({'is_dead':False}) :
+        available.append(entry.get('client'))
+        if len(available) == 4 :
+            print('\t'.join(available))
+            available = []
+    print('\t'.join(available))
+
 def run(mqtt_client, posts, opt) :
+    if opt == 'a' :
+        print('View all available (currently alive) client GUIDs.')
+        print_all_living_GUIDs(posts)
     if opt == 'i' :
         print('Randomize ping interval offset.')
         one = raw_input('Default is to randomize all client ping intervals. To specify one client, type \'y\': ')
@@ -95,6 +107,7 @@ def main(config, args, options) :
     print('MQTT Communicator')
     while(opt != 'exit') :
         print('\n\tManual Mode')
+        print('a -- view all available (currently alive) client GUIDs.')
         print('i -- randomize ping interval offset.')
         print('r -- request ping from client.')
         print('k -- kill client process.')

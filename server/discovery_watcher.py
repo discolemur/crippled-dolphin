@@ -17,14 +17,19 @@ posts = None
 def on_message(mosq, obj, msg):
     global posts
     content = json.loads(msg.payload)
+    #print('Received message from %s' %content['GUID'])
+    #print(content)
     if not isinstance(content, dict) :
         return
     if 'GUID' in content :
         entry = posts.find_one({'client':content['GUID']})
-        if entry is not None and entry['is_dead'] :
-            print('%s has restarted.' %entry['client'])
-        result = posts.update_one({'client':content['GUID']}, {"$set":{'time':int(time.time()),'is_dead':False}}, upsert=True)
-        #print('Received message from %s' %content['GUID'])
+        if entry is not None and 'statement' in content :
+            if content['statement'] == 'dead' :
+                result = posts.update_one({'client':content['GUID']}, {"$set":{'time':int(time.time()),'is_dead':True}}, upsert=True)
+        else :
+            if entry is not None and entry['is_dead'] :
+                print('%s has restarted.' %entry['client'])
+            result = posts.update_one({'client':content['GUID']}, {"$set":{'time':int(time.time()),'is_dead':False}}, upsert=True)
  
 def init_db(host, port) :
     global posts
@@ -38,8 +43,7 @@ def watch_mqtt(host, port) :
     #client.tls_set('root.ca', certfile='c1.crt', keyfile='c1.key')
     client.connect(host, port, 60)
     client.subscribe('/sendping', 0)
-    while client.loop() == 0:
-        pass
+    client.loop_forever()
 
 def main(config) :
     init_db(config['mongo_host'], config['mongo_port'])
