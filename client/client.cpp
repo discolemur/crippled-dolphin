@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     int port = stoi(get_arg(argc, argv, "-p", _DEFAULT_PORT));
     string host = get_arg(argc, argv, "-h", _DEFAULT_HOST);
     int lcycle = stoi(get_arg(argc, argv, "-l", _DEFAULT_LCYCLE));
-    const string GUID = "GUID-" + to_string(rand());
+    const string GUID = "GUID-" + to_string(rand()%1000);
     // 3 is the cycle length the server expects.
     // You may use 7 or higher to simulate routine death and restart.
     printf("Client process started.\n");

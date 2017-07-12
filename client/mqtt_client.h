@@ -6,19 +6,15 @@
 #include <thread>
 #include <chrono>
 #include <ostream>
+#include <vector>
+#include <sstream>
+#include <cstdlib>
 
 using std::string;
 using std::cout;
 using std::endl;
-
-/*
-TODO :
-
-Randomize time delay offset on request.
-
-Send ping on request.
-*/
-
+using std::vector;
+using std::stringstream;
 
 class MqttClient
 {
@@ -36,15 +32,61 @@ private:
             mqtt::connect_options * connOpts;
             MqttClient * client;
             string topic;
-
+            
+            vector<string> parseRequest(string msg)
+            {
+                vector<string> result;
+                stringstream ss;
+                ss.str(msg);
+                stringstream word;
+                char c;
+                bool getting = false;
+                while (ss.get(c))
+                {
+                    if (c == '\"')
+                    {
+                        getting = !getting;
+                        if (!getting)
+                        {
+                            string req = word.str();
+                            if (req != "request")
+                            {
+                                result.push_back(req);
+                            }
+                            word.str("");
+                        }
+                    }
+                    else if (getting)
+                    {
+                        word.put(c);
+                    }
+                }
+                return result;
+            }
             // Callback for when a message arrives.
             // Right now, no matter what we assume the message is a ping request.
             void message_arrived(mqtt::const_message_ptr msg) override
             {
-                cout << "Received message" << endl;
+                //cout << "Received message" << endl;
                 //cout << "\tPayload: " << msg->to_string() << "\n" << endl;
-                // They asked for a ping, so send a ping!
-                this->client->send_ping();
+                vector<string> requests = this->parseRequest(msg->to_string());
+                for (size_t i = 0; i < requests.size(); i++)
+                {
+                    if (requests[i] == "ping")
+                    {
+                        this->client->send_ping();
+                    }
+                    else if (requests[i] == "randomize")
+                    {
+                        this->client->send_ping();
+                        int amt = rand() % this->client->get_lcycle();
+                        std::this_thread::sleep_for(std::chrono::seconds(amt));
+                    }
+                    else if (requests[i] == "die")
+                    {
+                        this->client->stop();
+                    }
+                }
             }
             void on_failure(const mqtt::token& asyncActionToken) override
             {
@@ -73,6 +115,7 @@ private:
     const int lcycle;
     callback * cb;
     mqtt::message_ptr ping_msg;
+    bool keep_going;
 
 public:
     MqttClient(
@@ -94,6 +137,7 @@ public:
         const string payload = "{ \"GUID\":\"" + this->GUID + "\" }";
         this->ping_msg = mqtt::make_message(ping_topic, payload);
         this->ping_msg->set_qos(0);
+        this->keep_going = true;
     }
     ~MqttClient()
     {
@@ -101,6 +145,7 @@ public:
         delete this->client;
         delete this->connOpts;
     }
+    int get_lcycle() { return this->lcycle; }
     int send_ping()
     {
         try
@@ -116,6 +161,11 @@ public:
         }
         return 0;
     }
+    int stop()
+    {
+        this->keep_going = false;
+        return 0;
+    }
     int run()
     {
         try
@@ -129,7 +179,7 @@ public:
             do {
                 this->send_ping();
                 std::this_thread::sleep_for(std::chrono::seconds(this->lcycle));
-            } while (true);
+            } while (keep_going);
             this->client->disconnect();
         }
         catch (const mqtt::exception& exc)

@@ -3,6 +3,7 @@
 '''
 Manual Communicator
 
+Allows you to manually send a message to subscribers.
 '''
 
 def is_alive(posts, GUID) :
@@ -77,12 +78,10 @@ def main(config, args, options) :
     print('MQTT Communicator')
     posts = get_db_posts(config)
     mqtt_client = get_mqtt_client(config)
-    if args.r or args.GUID is not None :
-        GUID = args.GUID
-        if not args.r :
-            print('In automatic mode, option \'r\' is required.')
-        print(options)
-        print('Automatic mode not yet enabled.')
+    if args.i or args.GUID is not None :
+        if not args.i :
+            print('In automatic mode, option \'-i\' is required.')
+        randomize_pings(mqtt_client, posts, args.GUID)
         return 0
     opt = ''
     while(opt != 'exit') :
@@ -104,7 +103,7 @@ if __name__ == '__main__' :
     import optparse
     parser = optparse.OptionParser()
     parser.add_option('--GUID', action='store', type='string', help='GUID of client.', dest='GUID')
-    parser.add_option('-r', action='store_true', help='Randomize ping offsets. Randomizes one if GUID is specified, otherwise all are randomized.', dest='r')
+    parser.add_option('-i', action='store_true', help='Randomize ping offsets. Randomizes one if GUID is specified, otherwise all are randomized.', dest='i')
     args, options = parser.parse_args()
     print(args)
     print(options)
