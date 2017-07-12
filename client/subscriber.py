@@ -12,6 +12,7 @@ random.seed()
 
 GUID = None
 ping_msg = None
+config = None
 
 def send_ping(client) :
     global GUID
@@ -23,8 +24,17 @@ def send_ping(client) :
 def on_message(client, userdata, msg) :
     content = json.loads(msg.payload)
     if content['request'] == 'ping' :
-        print('HI!')
+        print('Resending ping.')
         send_ping(client)
+    if content['request'] == 'randomize' :
+        global config
+        # So that it doesn't look like I died, I send another ping.
+        send_ping(client)
+        print('Randomizing.')
+        time.sleep(random.randint(1, config['lcycle']))
+    if content['request'] == 'die' :
+        print('Dying upon request.')
+        exit(0)
 
 if __name__ == '__main__':
     config = read_config()
