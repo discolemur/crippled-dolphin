@@ -75,15 +75,24 @@ def get_db_posts(config) :
     return posts
 
 def main(config, args, options) :
-    print('MQTT Communicator')
+    opt = ''
     posts = get_db_posts(config)
     mqtt_client = get_mqtt_client(config)
-    if args.i or args.GUID is not None :
-        if not args.i :
-            print('In automatic mode, option \'-i\' is required.')
-        randomize_pings(mqtt_client, posts, args.GUID)
+    if args.i or args.r or args.k :
+        if args.i :
+            randomize_pings(mqtt_client, posts, args.GUID)
+        if args.r :
+            if args.GUID is None :
+                print('Sorry! In automatic mode you must provide a GUID')
+            else :
+                request_ping(mqtt_client, posts, args.GUID)
+        if args.k :
+            if args.GUID is None :
+                print('Sorry! In automatic mode you must provide a GUID')
+            else :
+                kill_client(mqtt_client, posts, args.GUID)
         return 0
-    opt = ''
+    print('MQTT Communicator')
     while(opt != 'exit') :
         print('\n\tManual Mode')
         print('i -- randomize ping interval offset.')
@@ -93,19 +102,36 @@ def main(config, args, options) :
         opt = raw_input('Which task: ')
         run(mqtt_client, posts, opt)
     print('Bye.')
+    return 0
 
+def get_parser() :
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option('--GUID', action='store', type='string', help='GUID of client.', dest='GUID')
+    parser.add_option('-i', action='store_true', help='Requests to randomize ping interval offset. Sends one request if GUID is specified, otherwise all active subscribers are asked to randomize.', dest='i')
+    parser.add_option('-r', action='store_true', help='Requests ping from cilent. --GUID is required.', dest='r')
+    parser.add_option('-k', action='store_true', help='Requests to kill client. --GUID is required', dest='k')
+    return parser
+ 
 if __name__ == '__main__' :
     import paho.mqtt.client as paho
     from pymongo import MongoClient
     from read_config import read_config
     import json
     import sys
-    import optparse
-    parser = optparse.OptionParser()
-    parser.add_option('--GUID', action='store', type='string', help='GUID of client.', dest='GUID')
-    parser.add_option('-i', action='store_true', help='Randomize ping offsets. Randomizes one if GUID is specified, otherwise all are randomized.', dest='i')
-    args, options = parser.parse_args()
-    print(args)
-    print(options)
+    # This code block allows the user to omit '-' in commandline arguments.
+    orig_args = sys.argv[1:]
+    new_args = []
+    for arg in orig_args:
+        if len(arg) == 1:
+            arg = '-' + arg
+        new_args.append(arg)
+    args, options = get_parser().parse_args(new_args)
+    if len(options) != 0 :
+        print('Unrecognized option : %s\n' %options[0])
+        exit(1)
+    if args.GUID is not None and len(sys.argv[1:]) == 1 :
+        print('Please specify a command to apply to %s next time.' %args.GUID)
+        exit(1)
     main(read_config(), args, options)
 
