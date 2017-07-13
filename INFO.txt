@@ -25,3 +25,14 @@ To run MongoDB :
 
 mongod --port=27017 -dbpath database/
 
+
+
+To set up the Tinker Board so it can build the c++ client:
+
+    Install all of the dependencies for Paho C and Paho CPP.
+
+To run the beast, (with Mongo running)
+    1.  Run discovery_watcher
+    2.  Run presence_checker
+    3.  Run manual_communicator to control things
+
